@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WriteWise AI</title>
+    <script src="https://unpkg.com/compromise"></script> <!-- NLP Library -->
+    <style>
+        /* General Body Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            padding: 20px;
+            margin: 0;
+            color: #333;
+            background: url('https://trainghiemso.vn/wp-content/uploads/2022/09/AI-Background-Generator.png') no-repeat center center fixed;
+            background-size: cover; /* Background image */
+            height: 100vh;
+        }
+
+        h1 {
+            color: white;
+            background-color: rgba(158, 218, 236, 0.8); /* Semi-transparent Green background for header */
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Textarea Styles */
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background-color: rgba(255, 255, 255, 0.8); /* Transparent white */
+            color: #333;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Focus Effect on Textarea */
+        textarea:focus {
+            border-color: #6dcad4;
+            outline: none;
+            box-shadow: 0 0 10px rgba(123, 236, 234, 0.5);
+        }
+
+        /* Button Styles */
+        button {
+            padding: 12px 20px;
+            background-color: #37bbbe;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            display: block;
+        }
+
+        /* Hover and Active Button States */
+        button:hover {
+            background-color: #88ccdb;
+            transform: translateY(-2px); /* Button lift effect */
+        }
+
+        button:active {
+            background-color: #72d8ed;
+            transform: translateY(2px); /* Button push effect */
+        }
+
+        /* Output Box */
+        #output {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        /* Title inside Output */
+        #output h3 {
+            color: #108296;
+            margin-bottom: 10px;
+        }
+
+        /* Suggestion List Styles */
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 15px;
+        }
+
+        ul li {
+            background-color: rgba(72, 234, 179, 0.6);
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        /* Hover effect on suggestions */
+        ul li:hover {
+            background-color: rgba(90, 191, 197, 0.8);
+            transform: translateY(-2px);
+        }
+
+        /* Error Message Styles */
+        .error {
+            color: #ff6347; /* Tomato red color */
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        /* Responsive Design for Small Screens */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.5rem;
+                padding: 15px;
+            }
+
+            textarea {
+                height: 120px;
+                font-size: 14px;
+            }
+
+            button {
+                font-size: 14px;
+                padding: 10px 18px;
+            }
+
+            #output {
+                margin-top: 20px;
+                padding: 15px;
+            }
+        }
+
+        /* Smooth Scroll for better UX */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <h1>WriteWise AI Writing Assistant</h1>
+    <textarea id="text-input" placeholder="Type your text here..."></textarea><br>
+    <button onclick="processText()">Analyze Text</button>
+
+    <div id="output"></div>
+
+    <script>
+        function processText() {
+            const text = document.getElementById('text-input').value;
+            const outputDiv = document.getElementById('output');
+
+            if (text.trim() === "") {
+                outputDiv.innerHTML = "<p class='error'>Please enter some text to analyze.</p>";
+                return;
+            }
+
+            // Use compromise.js to process the text
+            const doc = nlp(text);
+
+            // Get Noun count, Verb count, and Sentence count
+            const nounCount = doc.nouns().length;
+            const verbCount = doc.verbs().length;
+            const sentenceCount = doc.sentences().length;
+
+            // Word count (splitting the text by spaces and filtering out empty strings)
+            const wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+
+            // Grammar Suggestions (basic check)
+            const grammarSuggestions = generateGrammarSuggestions(doc);
+
+            // Display analysis and suggestions
+            outputDiv.innerHTML = `  
+                <h3>Text Analysis Results:</h3>
+                <p><strong>Word Count:</strong> ${wordCount}</p>
+                <p><strong>Nouns Count:</strong> ${nounCount}</p>
+                <p><strong>Verbs Count:</strong> ${verbCount}</p>
+                <p><strong>Sentence Count:</strong> ${sentenceCount}</p>
+                <p><strong>Grammar Suggestions:</strong></p>
+                <ul>${grammarSuggestions.map(suggestion => `<li>${suggestion}</li>`).join('')}</ul>
+            `;
+        }
+
+        function generateGrammarSuggestions(doc) {
+            const suggestions = [];
+
+            // Example: Suggest adding more nouns if fewer than 3
+            if (doc.nouns().length < 3) {
+                suggestions.push("Consider adding more nouns for clarity.");
+            }
+
+            // Example: Suggest adding more verbs if fewer than 2
+            if (doc.verbs().length < 2) {
+                suggestions.push("Consider using more verbs to make the text dynamic.");
+            }
+
+            // Example: Passive voice detection (simple)
+            const passiveVoiceCount = doc.sentences().filter(sentence => sentence.has('be') && sentence.has('by')).length;
+            if (passiveVoiceCount > 0) {
+                suggestions.push("Try to reduce the use of passive voice for clarity.");
+            }
+
+            // Example: Simple check for short sentences
+            if (doc.sentences().length <= 1) {
+                suggestions.push("Consider breaking up the text into more sentences for better readability.");
+            }
+
+            return suggestions;
+        }
+    </script>
+</body>
+</html>
